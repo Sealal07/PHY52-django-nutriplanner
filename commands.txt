@@ -1,0 +1,16 @@
+python -m venv venv
+venv\Scripts\activate  --windows
+source venv/bin/activate --linux/macOS
+pip install django openpyxl
+pip freeze > requirements.txt
+django-admin startproject nutriplanner .
+python manage.py startapp meals
+
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+
+request.session['meal_plan'] = {
+    '1': 150, '2': 300,....
+}
