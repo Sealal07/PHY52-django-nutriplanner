@@ -5,10 +5,13 @@ from .utils import MealPlanSession
 from django.contrib import messages
 
 def product_list(request):
+    query = request.GET.get('q', '').strip()
     products = Product.objects.all()
+    if query:
+        products = products.filter(name__icontains=query)
     return render(request, 
                   'meals/product_list.html', 
-                  {'products':products})
+                  {'products':products, 'query': query})
 
 @require_POST
 def add_to_plan(request, product_id):
@@ -27,6 +30,28 @@ def add_to_plan(request, product_id):
 
     return redirect('product_list')
 
+def meal_plan_detail(request):
+    meal_plan = MealPlanSession(request)
+    items, totals = meal_plan.get_items_and_totals()
+    context = {
+        'items': items,
+        'totals': totals
+    }
+    return render(request, 'meals/meal_plan.html', context)
+
+@require_POST
+def remove_from_plan(request, product_id):
+    meal_plan = MealPlanSession(request)
+    meal_plan.remove(product_id)
+    messages.info(request, 'Продукт удален из вашего рациона')
+    return redirect('meal_detail_plan') 
+
+@require_POST
+def clear_plan(request):
+    meal_plan = MealPlanSession(request)
+    meal_plan.clear()
+    messages.info(request, 'Ваш рацион полностью очищен')
+    return redirect('meal_detail_plan') 
 
 
 
